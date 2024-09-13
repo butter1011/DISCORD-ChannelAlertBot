@@ -157,8 +157,8 @@ async def schedule_daily_messages(scheduler):
     scheduler.remove_all_jobs()  # Remove previous day's jobs if any
 
     today = datetime.now(est).date()
-    if today in us_holidays:
-        print('Today is a holiday. No messages will be scheduled.')
+    if today in us_holidays or today.weekday() >= 5:
+        print('Today is a holiday or weekend. No messages will be scheduled.')
         return
 
     start_dt = est.localize(datetime.combine(today, start_time))
