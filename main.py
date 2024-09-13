@@ -133,9 +133,8 @@ messages = [
 us_holidays = holidays.US(years=datetime.now().year, observed=True)
 
 async def send_message():
-    now = datetime.now(est).time()
-    print(f'Message sending now ----->')
-    if start_time <= now <= end_time:
+    now = datetime.now(est)
+    if start_time <= now.time() <= end_time and now.weekday() < 5:  # Monday is 0, Friday is 4
         channel = client.get_channel(CHANNEL_ID)
         if channel:
             role = discord.utils.get(channel.guild.roles, id=ROLE_ID)
@@ -147,17 +146,17 @@ async def send_message():
                     message_content, 
                     allowed_mentions=discord.AllowedMentions(roles=True)
                 )
-                print(f'Message sent at {datetime.now(est)}')
+                print(f'Message sent at {now}')
 
-                await asyncio.sleep(15 * 60)  # Wait for 15 minutes
+                await asyncio.sleep(40 * 60)  # Wait for 40 minutes
                 await message.delete()
-                print(f'Message deleted after 15 minutes at {datetime.now(est)}')
+                print(f'Message deleted after 40 minutes at {datetime.now(est)}')
 
 async def schedule_daily_messages(scheduler):
     scheduler.remove_all_jobs()  # Remove previous day's jobs if any
 
     today = datetime.now(est).date()
-    if today in us_holidays or today.weekday() >= 5:
+    if today in us_holidays or today.weekday() >= 4:  # 5 is Saturday, 6 is Sunday
         print('Today is a holiday or weekend. No messages will be scheduled.')
         return
 
