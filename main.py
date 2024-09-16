@@ -1,3 +1,4 @@
+
 import discord
 from datetime import datetime, time, timedelta
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -23,10 +24,9 @@ est = pytimezone('America/New_York')
 start_time = time(9, 30)
 end_time = time(16, 0)
 
-
 # Sample messages:
 messages = [
-    "Align your decisions with your values—start the 4-Step Process now.",
+     "Align your decisions with your values—start the 4-Step Process now.",
     "Focus on what matters most. Are you practicing the 4-Steps today?",
     "Remember why you started. Take a moment for the 4-Step Sound Psych Process.",
     "Your values are your compass—use the 4-Steps to navigate your day.",
@@ -128,7 +128,6 @@ messages = [
     "Your future self will thank you—take time for the 4-Step Process today.",
 ]
 
-
 # US holidays
 us_holidays = holidays.US(years=datetime.now().year, observed=True)
 
@@ -142,15 +141,23 @@ async def send_message():
                 selected_message = random.choice(messages)
                 message_content = f"{role.mention} {selected_message}"
                 
-                message = await channel.send(
-                    message_content, 
-                    allowed_mentions=discord.AllowedMentions(roles=True)
-                )
-                print(f'Message sent at {now}')
+                try:
+                    message = await channel.send(
+                        message_content, 
+                        allowed_mentions=discord.AllowedMentions(roles=True)
+                    )
+                    print(f'Message sent at {now}')
 
-                await asyncio.sleep(40 * 60)  # Wait for 40 minutes
-                await message.delete()
-                print(f'Message deleted after 40 minutes at {datetime.now(est)}')
+                    await asyncio.sleep(40 * 60)  # Wait for 40 minutes
+                    await message.delete()
+                    print(f'Message deleted after 40 minutes at {datetime.now(est)}')
+                except discord.errors.HTTPException as e:
+                    if e.status == 503:
+                        print(f"Server is down. Attempting to resend message.")
+                        await asyncio.sleep(60)  # Wait for 1 minute before retrying
+                        await send_message()  # Retry sending the message
+                    else:
+                        print(f"Error sending or deleting message: {e}")
 
 async def schedule_daily_messages(scheduler):
     scheduler.remove_all_jobs()  # Remove previous day's jobs if any
@@ -163,24 +170,15 @@ async def schedule_daily_messages(scheduler):
     start_dt = est.localize(datetime.combine(today, start_time))
     end_dt = est.localize(datetime.combine(today, end_time))
 
-    min_interval_seconds = 40 * 60  # 40 minutes in seconds
     total_seconds = int((end_dt - start_dt).total_seconds())
-    
-    if total_seconds < min_interval_seconds * 5:
-        print('Not enough time in the day to schedule 5 messages with at least 40 minutes between them.')
-        return
+    interval = total_seconds // 5  # Divide the day into 5 equal intervals
 
-    # Determine the exact times for the messages
-    timestamps = []
-    current_time = start_dt
-    for _ in range(5):
-        random_offset = random.randint(0, min_interval_seconds - 1)
-        current_time += timedelta(seconds=min_interval_seconds + random_offset)
-        timestamps.append(current_time)
+    # Schedule exactly 5 messages
+    for i in range(5):
+        message_time = start_dt + timedelta(seconds=interval * i)
+        scheduler.add_job(send_message, 'date', run_date=message_time, misfire_grace_time=300)
 
-    # Schedule the messages
-    for timestamp in timestamps:
-        scheduler.add_job(send_message, 'date', run_date=timestamp)
+    print(f"Scheduled 5 messages for today between {start_dt} and {end_dt}")
 
 @client.event
 async def on_ready():
