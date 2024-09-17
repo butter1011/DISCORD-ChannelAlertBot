@@ -1,4 +1,3 @@
-
 import discord
 from datetime import datetime, time, timedelta
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -6,6 +5,7 @@ from pytz import timezone as pytimezone
 import asyncio
 import random
 import holidays
+import requests
 
 TOKEN = 'MTI3Mjc0MzY3OTg4NjYyMjgzMQ.Gxm3dc.j2DgeauElAmJ104FXdWXIkoR7Sb8fGVKq93AQo'
 CHANNEL_ID = 1272594921601237042  # Replace with your channel ID
@@ -131,6 +131,12 @@ messages = [
 # US holidays
 us_holidays = holidays.US(years=datetime.now().year, observed=True)
 
+async def ping_app():
+    try:
+        response = requests.get('https://randombot-1bf794a999e1.herokuapp.com')
+        print(f"Ping successful. Status code: {response.status_code}")
+    except Exception as e:
+        print(f"Ping failed: {str(e)}")
 async def send_message():
     now = datetime.now(est)
     if start_time <= now.time() <= end_time and now.weekday() < 5:  # Monday is 0, Friday is 4
@@ -188,7 +194,10 @@ async def on_ready():
     
     # Schedule the task to set up the daily message schedule at 9:25 AM EST every day
     scheduler.add_job(schedule_daily_messages, 'cron', hour=9, minute=25, timezone=est, args=[scheduler])
-    
+
+    # Add a new job to ping the app every 20 minutes
+    scheduler.add_job(ping_app, 'interval', minutes=20)
+
     # Initial call to set up today's schedule
     await schedule_daily_messages(scheduler)
 
