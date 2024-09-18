@@ -178,7 +178,7 @@ async def schedule_daily_messages(scheduler):
 
     total_seconds = int((end_dt - start_dt).total_seconds())
     interval = total_seconds // 5  # Divide the day into 5 equal intervals
-
+    
     # Schedule exactly 5 messages
     for i in range(5):
         message_time = start_dt + timedelta(seconds=interval * i)
@@ -189,18 +189,10 @@ async def schedule_daily_messages(scheduler):
 @client.event
 async def on_ready():
     print(f'Logged in as {client.user}')
-
     scheduler = AsyncIOScheduler()
-    
-    # Schedule the task to set up the daily message schedule at 9:25 AM EST every day
-    scheduler.add_job(schedule_daily_messages, 'cron', hour=9, minute=25, timezone=est, args=[scheduler])
-
-    # Add a new job to ping the app every 20 minutes
+    scheduler.add_job(schedule_daily_messages, 'cron', hour=9, minute=30, timezone=est, args=[scheduler])
     scheduler.add_job(ping_app, 'interval', minutes=20)
-
-    # Initial call to set up today's schedule
     await schedule_daily_messages(scheduler)
-
     scheduler.start()
 
 client.run(TOKEN)
