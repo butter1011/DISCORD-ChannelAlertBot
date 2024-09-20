@@ -169,7 +169,7 @@ async def schedule_daily_messages(scheduler):
     scheduler.remove_all_jobs()  # Remove previous day's jobs if any
 
     today = datetime.now(est).date()
-    if today in us_holidays or today.weekday() >= 4:  # 5 is Saturday, 6 is Sunday
+    if today in us_holidays or today.weekday() >= 5:  # 5 is Saturday, 6 is Sunday
         print('Today is a holiday or weekend. No messages will be scheduled.')
         return
 
