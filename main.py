@@ -8,7 +8,7 @@ import holidays
 import requests
 
 TOKEN = 'MTI3Mjc0MzY3OTg4NjYyMjgzMQ.Gxm3dc.j2DgeauElAmJ104FXdWXIkoR7Sb8fGVKq93AQo'
-CHANNEL_ID = 1272594921601237042  # Replace with your channel ID
+CHANNEL_ID = 1272594921601237042  
 ROLE_ID = 1206860573375987762 
 
 # Set up the client
