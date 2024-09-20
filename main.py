@@ -139,7 +139,7 @@ async def ping_app():
         print(f"Ping failed: {str(e)}")
 async def send_message():
     now = datetime.now(est)
-    if start_time <= now.time() <= end_time and now.weekday() < 5:  # Monday is 0, Friday is 4
+    if start_time <= now.time() <= end_time and now.weekday() < 5:
         channel = client.get_channel(CHANNEL_ID)
         if channel:
             role = discord.utils.get(channel.guild.roles, id=ROLE_ID)
