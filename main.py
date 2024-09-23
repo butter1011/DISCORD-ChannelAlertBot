@@ -170,8 +170,12 @@ async def schedule_daily_messages(scheduler):
 
     today = datetime.now(est).date()
     if today in us_holidays or today.weekday() >= 5:  # 5 is Saturday, 6 is Sunday
-        print('Today is a holiday or weekend. No messages will be scheduled.')
-        return
+        if today in us_holidays:
+            print(f"Today is a holiday. No messages will be scheduled.")
+            return
+        elif today.weekday() >= 5:
+            print(f"Today is a weekend. No messages will be scheduled.")
+            return
 
     start_dt = est.localize(datetime.combine(today, start_time))
     end_dt = est.localize(datetime.combine(today, end_time))
