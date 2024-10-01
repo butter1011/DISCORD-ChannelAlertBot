@@ -195,7 +195,7 @@ async def on_ready():
     print(f'Logged in as {client.user}')
     scheduler = AsyncIOScheduler()
     scheduler.add_job(schedule_daily_messages, 'cron', hour=9, minute=30, timezone=est, args=[scheduler])
-    scheduler.add_job(ping_app, 'interval', minutes=10)
+    scheduler.add_job(ping_app, 'interval', minutes=20)
     await schedule_daily_messages(scheduler)
     scheduler.start()
     # await send_message()
